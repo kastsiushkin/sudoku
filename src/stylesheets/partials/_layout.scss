@@ -1,0 +1,14 @@
+html {
+	background: url('../images/bg.png') top left repeat;
+}
+
+.wrapper {
+	width: $wrapper-width;
+	margin: 0 auto;
+	overflow: hidden;
+}
+
+.game {
+	margin: 0 auto;
+	width: 285px;
+}
