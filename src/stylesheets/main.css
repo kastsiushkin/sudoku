@@ -62,6 +62,8 @@ html {
       border-right: 2px solid #000; }
     #game td:hover {
       background-color: #eee; }
+    #game td.locked {
+      font-weight: bold; }
 
 #keypad {
   top: 0;

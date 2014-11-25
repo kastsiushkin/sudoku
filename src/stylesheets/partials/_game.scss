@@ -20,6 +20,9 @@
 		&:hover {
 			background-color: #eee;
 		}
+		&.locked {
+			font-weight: bold;
+		}
 	}
 }
 
