@@ -149,14 +149,33 @@ var Sudoku =(function($) {
 
 	/* Event handlers  */
 	function cellClick (event) {
+		//TO-DO refactor this code
 		currentCell = event.target;
 		if ( currentCell.className.indexOf('locked') !== -1 ) {
 			return false;
 		}
+		var bottomLimit = event.currentTarget.clientHeight;
+		var currentBottom = currentCell.offsetTop + currentCell.clientHeight * 4;
+		var leftLimit = event.currentTarget.clientWidth;
+		var currentleft = currentCell.offsetLeft + currentCell.clientWidth * 4;
+		var top, left;
+		if ( currentBottom < bottomLimit ) {
+			top = currentCell.offsetTop + currentCell.clientHeight;
+		} else {
+			top = currentCell.offsetTop - currentCell.clientHeight * 3;
+		}
+		if ( currentleft < leftLimit ) {
+			left = currentCell.offsetLeft + currentCell.clientWidth;
+		} else {
+			left = currentCell.offsetLeft - currentCell.clientWidth * 3;
+		}
+
+		console.log(event.currentTarget.clientHeight, currentCell.offsetTop + currentCell.clientHeight * 4);	
+
 		keypad.css('opacity', 0);
 		keypad.css('display', 'none');
-		keypad.css('top', event.pageY);
-		keypad.css('left', event.pageX);
+		keypad.css('top', top);
+		keypad.css('left', left);
 		keypad.css('display', 'block');
 		keypad.animate({
 			opacity: 1
@@ -175,6 +194,7 @@ var Sudoku =(function($) {
 	function addValue (row, col, value) {
 		gameArray[row][col] = value;
 	}
+
 	function generateInitialGame () {
 		//Row 1
 		addValue(0, 0, 5);

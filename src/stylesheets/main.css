@@ -50,6 +50,7 @@ html {
   overflow: hidden; }
 
 .game {
+  position: relative;
   margin: 0 auto;
   width: 285px; }
 
