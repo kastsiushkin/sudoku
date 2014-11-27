@@ -18,9 +18,9 @@ Board game sudoku. [Wiki Page](http://en.wikipedia.org/wiki/Sudoku)
 
 ### About
 
-The game is created fully in JavaScript, by including game.js file on the page and calling Sudoku.init() function providing it an id of the element where the game will be appended to.
+The game is created by including game.js file on the page and calling Sudoku.init() function providing it an id of the element where the game will be appended to.
 
-The game is prepoluated and player is allowed to select numbers for empty cells. After each selection the entire game board is checked for mistakes and if they found numbers change color to red indicating the error. 
+The game is prepoluated and player is allowed to select numbers for cells that were not part of the populated game. After each selection the entire game board is checked for mistakes and if they are found numbers change color to red indicating the error. 
 
 In the footer of the game, the user can see the time passed since the first selection and can reset the current game.
 
@@ -50,7 +50,7 @@ Check of the game board is done in 3 steps:
 2. Check columns
 3. Check sectors (3x3 blocks)
 
-Each step is narrowed down to getting an array of 9 elements for either a row, column or sector and checking this array for duplicate values. Check for duplicates is done by sorting the array and comparing each value to the next value in the array. If errors found or game board is incomplete, global booleans isValid and isFull are set to false. If after the check both are true it means that game is correctly solved and user is greeted with an option to restart the game.
+Each step is narrowed down to getting an array of 9 elements for either a row, column or sector and checking this array for duplicate values. Check for duplicates is done by sorting the array and comparing each value to the next value in the array. If errors are found or the game board is incomplete, global booleans isValid and isFull are set to false. If after the check both bolleans are equal to true it means that the game is correctly solved and the user is greeted with an option to restart the game.
 
 Reset function deletes existing HTML associated with the game, clears timer and calls init() function again generating a new game.
 
