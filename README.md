@@ -30,15 +30,15 @@ game.js file contains all implementation details of the game.
 
 The state of the game is stored in JavaScript in two-dimensional array 9x9. Each item of the array is an object of format:
 
-    cell {
-    id: <String uniqueId>,
-    row: <Integer rowIndex>,
-    col: <Integer colIndex>,
-    valid: <Boolean isValidChoice>,
-    locked: <Boolean isEditable>
+    cell = {
+    	id: <String uniqueId>,
+    	row: <Integer rowIndex>,
+    	col: <Integer colIndex>,
+    	valid: <Boolean isValidChoice>,
+    	locked: <Boolean isEditable>
 	}
 
-Cells that are not part of the prepopulated game and are not yet selected have uniqueId and value = -1.
+Cells that are not part of the prepopulated game and are not yet selected have id and value = -1 properties. 
 
 UI representaion is HTML table generated dynamically in JavaScript. Each cell of the table has unique id and data attributes with row and column values that are used to map JavaScript representation to the UI and vice versa.
 
