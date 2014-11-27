@@ -145,7 +145,7 @@ var Sudoku = (function($) {
 		$(currentCell).removeClass('active');
 		currentCell = event.target;
 		$(currentCell).addClass('active');
-		
+
 		//Ignore if locked cell or click not on the td
 		if ( currentCell.className.indexOf('locked') !== -1 || event.target.nodeName !== 'TD' ) {
 			hideKeypad();
@@ -202,10 +202,10 @@ var Sudoku = (function($) {
 
 	function resetClick (event) {
 		gameBoard.find('*').remove();
+		clearTime();
 		Sudoku.init({
 			gameBoard: 'sudoku'
 		});
-		clearTime();
 	};
 
 	/* ****************************
