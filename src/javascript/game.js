@@ -77,7 +77,7 @@ var Sudoku = (function($) {
 		addIdAttribute(timeInput, 'time-input');
 		toolbar.append(timeInput);
 		//Create reset button
-		reset = createElement('span').append(document.createTextNode('⟳'));
+		reset = createElement('span').append(document.createTextNode('Restart'));
 		addIdAttribute(reset, 'reset');
 		toolbar.append(reset);
 
@@ -111,6 +111,26 @@ var Sudoku = (function($) {
 		}
 	};
 
+	function congratulate () {
+		var overlay = createElement('div');
+		addIdAttribute(overlay, 'overlay');
+
+		var text = createElement('div');
+		addIdAttribute(text, 'message');
+		var header = createElement('h3').append(document.createTextNode('Congratulations!'));
+		var message = createElement('p').append(document.createTextNode('You complete the game! Start again?'));
+		text.append(header).append(message);
+		overlay.append(text);
+
+		var restart = createElement('div').append(document.createTextNode('Restart'));
+		addIdAttribute(restart, 'restart');
+		overlay.append(restart);
+
+		gameBoard.append(overlay);
+
+		restart.bind('click', resetClick);
+	};
+
 	//Check current selection
 	// function checkGame (choice) {
 	// 	var row = +currentCell.dataset.row,
@@ -126,13 +146,16 @@ var Sudoku = (function($) {
 		if ( !timer ) {
 			startTime();
 		}
-		//TO-DO refactor this code
 		$(currentCell).removeClass('active');
 		currentCell = event.target;
 		$(currentCell).addClass('active');
-		if ( currentCell.className.indexOf('locked') !== -1 ) {
+
+		//Ignore if locked cell or click not on the td
+		if ( currentCell.className.indexOf('locked') !== -1 || event.target.nodeName !== 'TD' ) {
 			return false;
 		}
+
+		//Calculate position for the keypad to appear
 		var bottomLimit = event.currentTarget.clientHeight;
 		var currentBottom = currentCell.offsetTop + currentCell.clientHeight * 4;
 		var leftLimit = event.currentTarget.clientWidth;
@@ -152,11 +175,11 @@ var Sudoku = (function($) {
 	};
 
 	function keyClick (event) {
+		$(currentCell).removeClass('active');
 		if ( event.target.nodeName !== 'TD' ) {
 			hideKeypad();
 			return false;
 		}
-		$(currentCell).removeClass('active');
 		event.stopPropagation();
 		var choice = event.target.innerHTML;
 		hideKeypad();
