@@ -29,6 +29,7 @@ In the footer of the game, the user can see the time passed since the first sele
 game.js file contains all implementation details of the game. 
 
 The state of the game is stored in JavaScript in two-dimensional array 9x9. Each item of the array is an object of format:
+
     cell {
     id: <String uniqueId>,
     row: <Integer rowIndex>,
@@ -44,6 +45,7 @@ UI representaion is HTML table generated dynamically in JavaScript. Each cell of
 When user clicks on the cell of the table, keypad with numbers 0-9 appears next to the cell. Position is calculated in the way, such that the keypad will always appear on top of the game board, preventing overflow issues on mobile devices.
 
 Check of the game board is done in 3 steps:
+
 1. Check rows
 2. Check columns
 3. Check sectors (3x3 blocks)
