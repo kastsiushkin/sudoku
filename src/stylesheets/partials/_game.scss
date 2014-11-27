@@ -23,6 +23,9 @@
 		&.locked {
 			font-weight: bold;
 		}
+		&.invalid {
+			color: red;
+		}
 	}
 }
 

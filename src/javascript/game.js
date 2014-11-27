@@ -1,20 +1,19 @@
 var Sudoku = (function($) {
-	var gameBoard
-		,game
-		,timer
-		,secondsElapsed = 0
-		,keypad
-		,currentCell
-		,toolbar
-		,time
-		,timeInput
-		,reset
-		,gameArray;
+	var gameBoard 			 //Dom element - container for the game
+		,game 				 //Dom element - game table
+		,timer 				 //Timer to update time
+		,secondsElapsed = 0  //Time since the first click
+		,keypad 			 //Dom element of the keypad with numbers
+		,currentCell 		 //Dom element - currently selected cell of the game board
+		,timeInput 			 //Dom element - string representation of the time i.e. 01:13
+		,reset 				 //Dom element - reset button
+		,gameArray; 		 //JS representation of the game - 2-dimensional array 9x9
 
 	return {
+		// Initiate a new game
 		init: function (args) {
 			var args = args || {};
-			gameBoard = $('#' + args.gameBoard);
+			gameBoard = $('#' + args.gameBoard) || $('body');
 
 			createGameBoard();
 			createKeypad();
@@ -26,7 +25,7 @@ var Sudoku = (function($) {
 			generateInitialGame();
 			renderGame(gameArray);
 		}
-	}
+	};
 
 	/* ****************************
 		Helper functions
@@ -68,10 +67,10 @@ var Sudoku = (function($) {
 
 	function createToolbar() {
 		//Create toolbar container
-		toolbar = createElement('div');
+		var toolbar = createElement('div');
 		addIdAttribute(toolbar, 'toolbar');
 		//Create timer label and time input
-		time = createElement('label').append(document.createTextNode('Time: '));
+		var time = createElement('label').append(document.createTextNode('Time: '));
 		toolbar.append(time);
 		timeInput = createElement('span').append(document.createTextNode('00:00'));
 		addIdAttribute(timeInput, 'time-input');
@@ -91,18 +90,6 @@ var Sudoku = (function($) {
 		reset.bind('click', resetClick);
 	};
 
-	function createElement (element) {
-		return $(document.createElement(element));
-	};
-
-	function appendElement(parent, element) {
-		parent.append(element);
-	}
-
-	function addIdAttribute (container, id) {
-		container.attr('id', id);
-	}
-
 	//Update dom of current cell
 	function updateCurrentCell (value) {
 		$(currentCell).text(value);
@@ -111,7 +98,8 @@ var Sudoku = (function($) {
 	//Update js array after user selection
 	function updateGameArray (value) {
 		var position = getRowAndColOfCurrentCell();
-		gameArray[position.row][position.col] = (cell(position.row, position.col, value));
+		var newCell = cell(position.row, position.col, value);
+		addValue(newCell);
 	};
 
 	//Returns row and col of currently selected cell
@@ -123,15 +111,12 @@ var Sudoku = (function($) {
 	};
 
 	//Check current selection
-	function checkSelection (choice) {
-		var row = +currentCell.dataset.row,
-			col = +currentCell.dataset.col;
-		if ( !checkRow(row, choice) || !checkCol(col, choice) || !checkSector(row, col, choice) ) {
-			markError();
-		} else {
-			markOk();
-		}
-	}
+	// function checkGame (choice) {
+	// 	var row = +currentCell.dataset.row,
+	// 		col = +currentCell.dataset.col;
+	// 	var valid = checkRow(row, choice);
+	// 	//valid ? markInvalidRow(row, choice);
+	// };
 
 	/* ****************************
 		Event handlers
@@ -161,9 +146,7 @@ var Sudoku = (function($) {
 			left = currentCell.offsetLeft + currentCell.clientWidth;
 		} else {
 			left = currentCell.offsetLeft - currentCell.clientWidth * 3;
-		}
-
-		console.log(event.currentTarget.clientHeight, currentCell.offsetTop + currentCell.clientHeight * 4);	
+		}	
 
 		keypad.css('opacity', 0);
 		keypad.css('display', 'none');
@@ -182,7 +165,7 @@ var Sudoku = (function($) {
 		keypad.css('display', 'none');
 		updateCurrentCell(+choice);
 		updateGameArray(+choice);
-		checkSelection(+choice);
+		checkGame();
 	};
 
 	function resetClick (event) {
@@ -192,8 +175,10 @@ var Sudoku = (function($) {
 	/* ****************************
 		Create js representation of the board
 	* ****************************/
-	function addValue (cell) {
-		gameArray[cell.row][cell.col] = cell;
+	function addValue (newCell) {
+		var existingCell = gameArray[newCell.row][newCell.col];
+		newCell.id = existingCell.id;
+		gameArray[newCell.row][newCell.col] = newCell;
 	};
 
 	function generateEmptyArray () {
@@ -201,7 +186,10 @@ var Sudoku = (function($) {
 		for (var i = 0; i < 9; i++) {
 			gameArray[i] = [];
 			for (var j = 0; j < 9; j++) {
-				gameArray[i][j] = undefined;
+				gameArray[i][j] = {
+					id: ''+i+j,
+					value: -1
+				};
 			}
 		}
 	};
@@ -246,7 +234,7 @@ var Sudoku = (function($) {
 		addValue(cell(8, 4, 8, true, true));
 		addValue(cell(8, 7, 7, true, true));
 		addValue(cell(8, 8, 9, true, true));
-	}
+	};
 
 	function cell (row, col, number, valid, locked) {
 		return {
@@ -256,7 +244,7 @@ var Sudoku = (function($) {
 			valid: valid || true,
 			locked: locked || false
 		}
-	}
+	};
 
 	/* ****************************
 		Rendering 
@@ -269,13 +257,24 @@ var Sudoku = (function($) {
 				var cell = array[i][j];
 				if ( cell !== undefined ) {
 					var domCell = getCellById(cell.row, cell.col);
-					domCell.text(cell.value);
+					addCellToDom(domCell, cell);
 					domCell.addClass('locked');
-					domCell.attr('data-value', cell.value);
 				}
 			}
 		}
 	};
+
+	function renderCell (cell) {
+		var domCell = getCellById(cell.row, cell.col);
+		console.log("render", cell, domCell);
+		addCellToDom(domCell, cell);
+	};
+
+	function addCellToDom (domCell, cell) {
+		domCell.text(cell.value);
+		domCell.attr('data-value', cell.value);
+		cell.valid ? domCell.removeClass('invalid') : domCell.addClass('invalid')
+	}
 
 	function markError (rowIndex, colIndex) {
 		$(currentCell).css('color', 'red');
@@ -283,19 +282,11 @@ var Sudoku = (function($) {
 
 	function markOk (rowIndex, colIndex) {
 		$(currentCell).css('color', 'black');
-	}
-
-	function getCellById (row, col) {
-		return $('#cell-' + row + '-' + col);
-	}
-
-	function getIds (row, value) {
-		
-	}
+	};
 
 	function renderNewTime (timeString) {
-		$('#time-input').text(timeString);
-	}
+		timeInput.text(timeString);
+	};
 
 	/* ****************************
 		Check the game 
@@ -303,69 +294,122 @@ var Sudoku = (function($) {
 
 	//Check full board
 	function checkGame (argument) {
-		console.log(gameArray[0]);
-		//Copy array
-		var arrayToCheck = gameArray[0].sort();
-		for (var i = 0; i < 8; i++) {
-			if ( gameArray[0][i] === gameArray[0][i+1] && gameArray[0][i] !== -1 ) {
-				getIds();
-			}
-		}
-	}
+		//Remove previous validation
+		$('.invalid').removeClass('invalid');
+		checkAndMarkRows();
+		checkAndMarkCols();
+		checkSectors();
+	};
 
-	// whether there are more than 1 number on the same row
-	function checkRow (rowIndex, valueToCheck) {
-		var number = 0; 
+	//Get a single row and check
+	function checkAndMarkRows () {
+		var rowToCheck = [];
 		for (var i = 0; i < 9; i++) {
-			if ( gameArray[rowIndex][i] === valueToCheck) {
-				number++;
-			}
+			//Create copy of the original array to prevent sorting
+			rowToCheck = gameArray[i];
+			checkSingleLine(rowToCheck);
 		}
-		return number < 2;
-	}
+	};
 
-	// whether there are more than 1 number on the same column
-	function checkCol (colIndex, valueToCheck) {
-		var number = 0; 
+	//Get a single col and check
+	function checkAndMarkCols () {
+		//Create a column
 		for (var i = 0; i < 9; i++) {
-			if ( gameArray[colIndex][i] === valueToCheck) {
-				number++;
+			var colToCheck = [];
+			for (var j = 0; j < 9; j++) {
+				colToCheck.push(gameArray[j][i]);
+			}
+			checkSingleLine(colToCheck);
+		}
+	};
+
+	//Creates an array from the sector and checks it just like row or column
+	function checkSectors () {
+		for (var i = 0; i < 1; i++) {
+			var sectorToCheck = createArrayForSector(i);
+			checkSingleLine(sectorToCheck);
+		}
+	};
+
+	//Takes an array, which is a row or a column and check for duplicates
+	function checkSingleLine (array) {
+		//Create a copy of the array before sorting to prevent changes to the original array
+		var sortedArray = array.slice().sort(comparator('value'));
+		for (var j = 0; j < 8; j++) {
+			if ( sortedArray[j].value !== -1 && sortedArray[j].value === sortedArray[j+1].value ) {
+				markCellInvalid(sortedArray[j].id);
+				markCellInvalid(sortedArray[j+1].id);
 			}
 		}
-		return number < 2;
-	}
+	};
 
-	// whether there are more than 1 number in the same sector
-	function checkSector (rowIndex, colIndex, valueToCheck) {
-		var rowStart = getSectorStartIndex(rowIndex),
+	function createArrayForSector (index) {
+		var array = [];
+			startIndexes =  getSectorStartIndexes(index),
+			rowStart = startIndexes.row;
 			rowEnd = rowStart + 2,
-			colStart = getSectorStartIndex(colIndex),
+			colStart = startIndexes.col
 			colEnd = colStart + 2,
 			number = 0; 
-
+		console.log("start indexes", startIndexes);
+		//Traverse a single sector and create an array from it's elements
 		for (var i = rowStart; i <= rowEnd; i++) {
 			for (var j = colStart; j <= colEnd; j++) {
-				if ( gameArray[i][j] === valueToCheck) {
-					number++;
+				array.push(gameArray[i][j]);
+			}
+		}
+		return array;
+	}
+
+	// Returns start indexes for the sector
+	function getSectorStartIndexes (index) {
+		var startIndexes = {};
+		switch( index ) {
+			case 0:
+				startIndexes = { row: 0, col: 0 };
+				break;
+			case 1:
+				startIndexes = { row: 0, col: 3 };
+				break;
+			case 2:
+				startIndexes = { row: 0, col: 6 };
+				break;
+			case 3:
+				startIndexes = { row: 3, col: 0 };
+				break;
+			case 4:
+				startIndexes = { row: 3, col: 3 };
+				break;
+			case 5:
+				startIndexes = { row: 3, col: 6 };
+				break;
+			case 6:
+				startIndexes = { row: 6, col: 0 };
+				break;
+			case 7:
+				startIndexes = { row: 6, col: 3 };
+				break;
+			case 8:
+				startIndexes = { row: 6, col: 6 };
+				break;
+		}
+
+		return startIndexes;
+	}
+
+	//Finds cell by id and marks it invalid, then renders updated cell
+	function markCellInvalid (id) {
+		for (var i = 0; i < 9; i++) {
+			for (var j = 0; j < 9; j++) {
+				var cell = gameArray[i][j];
+				if ( cell.id === id ) {
+					cell.valid = false;
+					renderCell(cell);
+					break;
 				}
 			}
 		}
-		return number < 2;
-	}
-
-	//Returns start index of the sector
-	function getSectorStartIndex (index) {
-		var startIndex;
-		if ( index >= 0 && index < 3 ) {
-			startIndex = 0;
-		} else if ( index >= 3 && index < 6 ) {
-			startIndex = 3;
-		} else if ( index >= 6 && index < 9 ) {
-			startIndex = 6;
-		}
-
-		return startIndex;
-	}
+	};
 
 	/* ****************************
 		Time and scoring
@@ -374,13 +418,13 @@ var Sudoku = (function($) {
 		timer = setInterval(function () {
 			updateTimer();
 		}, 1000)
-	}
+	};
 
 	function updateTimer () {
 		secondsElapsed++;
 		var timeString = getFormattedTimeString(secondsElapsed);
 		renderNewTime(timeString);
-	}
+	};
 
 	function getFormattedTimeString (secondsElapsed) {
 		var seconds = secondsElapsed % 60,
@@ -390,6 +434,31 @@ var Sudoku = (function($) {
 			minutesString = minutes < 10 ? '0' + minutes : minutes;
 
 		return minutesString + ':' + secondsString;
+	};
+
+	/* 
+		Helper functions
+	 */
+	function createElement (element) {
+		return $(document.createElement(element));
+	};
+
+	function appendElement(parent, element) {
+		parent.append(element);
+	};
+
+	function addIdAttribute (container, id) {
+		container.attr('id', id);
+	};
+
+	function getCellById (row, col) {
+		return $('#cell-' + row + '-' + col);
+	};
+
+	function comparator (field) {
+		return function(a, b) {
+			return a[field] - b[field];
+		}
 	}
 
 })(jQuery);
