@@ -15,14 +15,14 @@ var Sudoku = (function($) {
 			var args = args || {};
 			gameBoard = $('#' + args.gameBoard) || $('body');
 
+			generateEmptyArray();
+			generateInitialGame();
+
 			createGameBoard();
 			createKeypad();
 			createToolbar();
 
 			delegateEvents();
-
-			generateEmptyArray();
-			generateInitialGame();
 			renderGame(gameArray);
 		}
 	};
@@ -42,6 +42,7 @@ var Sudoku = (function($) {
 				cell.attr('id', 'cell-' + i + '-' + j);
 				cell.attr('data-row', i);
 				cell.attr('data-col', j);
+				$('#cell-' + i + '-' + j).text('');
 				row.append(cell);
 			}
 		}
@@ -147,7 +148,24 @@ var Sudoku = (function($) {
 		} else {
 			left = currentCell.offsetLeft - currentCell.clientWidth * 3;
 		}	
+		showKeypad(top, left);
+	};
 
+	function keyClick (event) {
+		if ( event.target.nodeName !== 'TD' ) {
+			hideKeypad();
+			return false;
+		}
+		$(currentCell).removeClass('active');
+		event.stopPropagation();
+		var choice = event.target.innerHTML;
+		hideKeypad();
+		updateCurrentCell(+choice);
+		updateGameArray(+choice);
+		checkGame();
+	};
+
+	function showKeypad (top, left) {
 		keypad.css('opacity', 0);
 		keypad.css('display', 'none');
 		keypad.css('top', top);
@@ -158,18 +176,16 @@ var Sudoku = (function($) {
 		}, 200);
 	};
 
-	function keyClick (event) {
-		$(currentCell).removeClass('active');
-		event.stopPropagation();
-		var choice = event.target.innerHTML;
+	function hideKeypad () {
 		keypad.css('display', 'none');
-		updateCurrentCell(+choice);
-		updateGameArray(+choice);
-		checkGame();
-	};
+	}
 
 	function resetClick (event) {
-		checkGame();
+		gameBoard.find('*').remove();
+		Sudoku.init({
+			gameBoard: 'sudoku'
+		});
+		clearTime();
 	};
 
 	/* ****************************
@@ -255,18 +271,15 @@ var Sudoku = (function($) {
 		for (var i = 0; i < 9; i++) {
 			for (var j = 0; j < 9; j++) {
 				var cell = array[i][j];
-				if ( cell !== undefined ) {
-					var domCell = getCellById(cell.row, cell.col);
-					addCellToDom(domCell, cell);
-					domCell.addClass('locked');
-				}
+				var domCell = getCellById(cell.row, cell.col);
+				addCellToDom(domCell, cell);
+				domCell.addClass('locked');
 			}
 		}
 	};
 
 	function renderCell (cell) {
 		var domCell = getCellById(cell.row, cell.col);
-		console.log("render", cell, domCell);
 		addCellToDom(domCell, cell);
 	};
 
@@ -325,7 +338,7 @@ var Sudoku = (function($) {
 
 	//Creates an array from the sector and checks it just like row or column
 	function checkSectors () {
-		for (var i = 0; i < 1; i++) {
+		for (var i = 0; i < 9; i++) {
 			var sectorToCheck = createArrayForSector(i);
 			checkSingleLine(sectorToCheck);
 		}
@@ -343,15 +356,14 @@ var Sudoku = (function($) {
 		}
 	};
 
+	//Creates an array from the elements in a sector
 	function createArrayForSector (index) {
 		var array = [];
 			startIndexes =  getSectorStartIndexes(index),
 			rowStart = startIndexes.row;
 			rowEnd = rowStart + 2,
 			colStart = startIndexes.col
-			colEnd = colStart + 2,
-			number = 0; 
-		console.log("start indexes", startIndexes);
+			colEnd = colStart + 2;
 		//Traverse a single sector and create an array from it's elements
 		for (var i = rowStart; i <= rowEnd; i++) {
 			for (var j = colStart; j <= colEnd; j++) {
@@ -419,6 +431,12 @@ var Sudoku = (function($) {
 			updateTimer();
 		}, 1000)
 	};
+
+	function clearTime () {
+		clearTimeout(timer);
+		timer = undefined;
+		secondsElapsed = 0;
+	}
 
 	function updateTimer () {
 		secondsElapsed++;
