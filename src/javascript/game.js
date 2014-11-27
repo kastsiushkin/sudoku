@@ -1,8 +1,14 @@
-var Sudoku =(function($) {
+var Sudoku = (function($) {
 	var gameBoard
 		,game
+		,timer
+		,secondsElapsed = 0
 		,keypad
 		,currentCell
+		,toolbar
+		,time
+		,timeInput
+		,reset
 		,gameArray = [];
 
 	return {
@@ -12,6 +18,7 @@ var Sudoku =(function($) {
 
 			createGameBoard();
 			createKeypad();
+			createToolbar();
 
 			delegateEvents();
 
@@ -57,6 +64,25 @@ var Sudoku =(function($) {
 		}
 	
 		appendElement(gameBoard, keypad);
+	};
+
+	function createToolbar() {
+		//Create toolbar container
+		toolbar = createElement('div');
+		addIdAttribute(toolbar, 'toolbar');
+		//Create timer label and time input
+		time = createElement('label').append(document.createTextNode('Time: '));
+		toolbar.append(time);
+		timeInput = createElement('span').append(document.createTextNode('00:00'));
+		addIdAttribute(timeInput, 'time-input');
+		toolbar.append(timeInput);
+		//Create reset button
+		reset = createElement('span').append(document.createTextNode('⟳'));
+		addIdAttribute(reset, 'reset');
+		toolbar.append(reset);
+
+
+		appendElement(gameBoard, toolbar);
 	};
 
 	function delegateEvents () {
@@ -149,8 +175,13 @@ var Sudoku =(function($) {
 
 	/* Event handlers  */
 	function cellClick (event) {
+		if ( !timer ) {
+			startTime();
+		}
 		//TO-DO refactor this code
+		$(currentCell).removeClass('active');
 		currentCell = event.target;
+		$(currentCell).addClass('active');
 		if ( currentCell.className.indexOf('locked') !== -1 ) {
 			return false;
 		}
@@ -183,6 +214,7 @@ var Sudoku =(function($) {
 	};
 
 	function keyClick (event) {
+		$(currentCell).removeClass('active');
 		event.stopPropagation();
 		var choice = event.target.innerHTML;
 		keypad.css('display', 'none');
@@ -262,6 +294,33 @@ var Sudoku =(function($) {
 
 	function getCellById (row, col) {
 		return $('#cell-' + row + '-' + col);
+	}
+
+	function renderNewTime (timeString) {
+		$('#time-input').text(timeString);
+	}
+
+	/* Time and scoring */
+	function startTime () {
+		timer = setInterval(function () {
+			updateTimer();
+		}, 1000)
+	}
+
+	function updateTimer () {
+		secondsElapsed++;
+		var timeString = getFormattedTimeString(secondsElapsed);
+		renderNewTime(timeString);
+	}
+
+	function getFormattedTimeString (secondsElapsed) {
+		var seconds = secondsElapsed % 60,
+			minutes = Math.floor(secondsElapsed / 60),
+
+			secondsString = seconds < 10 ? '0' + seconds : seconds,
+			minutesString = minutes < 10 ? '0' + minutes : minutes;
+
+		return minutesString + ':' + secondsString;
 	}
 
 })(jQuery);

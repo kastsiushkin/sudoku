@@ -45,14 +45,14 @@ html {
   background: url("../images/bg.png") top left repeat; }
 
 .wrapper {
-  width: 70%;
+  width: 100%;
   margin: 0 auto;
   overflow: hidden; }
 
 .game {
   position: relative;
   margin: 0 auto;
-  width: 285px; }
+  width: 320px; }
 
 #game {
   position: relative;
@@ -62,14 +62,14 @@ html {
   #game tr:nth-child(3), #game tr:nth-child(6) {
     border-bottom: 2px solid #000; }
   #game td {
-    width: 30px;
-    height: 30px;
+    width: 35px;
+    height: 35px;
     border: 1px solid #000;
     text-align: center;
     vertical-align: middle; }
     #game td:nth-child(3), #game td:nth-child(6) {
       border-right: 2px solid #000; }
-    #game td:hover {
+    #game td:hover, #game td.active {
       background-color: #eee; }
     #game td.locked {
       font-weight: bold; }
@@ -80,16 +80,20 @@ html {
   opacity: 0;
   display: none;
   position: absolute;
-  background-color: #ddd;
-  border: 2px solid #000;
+  background-color: #111;
+  border: 2px solid #222;
   cursor: pointer; }
   #keypad td {
-    width: 30px;
-    height: 30px;
+    width: 35px;
+    height: 35px;
     text-align: center;
     vertical-align: middle;
-    border: 1px solid #000; }
+    border: 1px solid #ddd;
+    color: #ddd; }
     #keypad td:hover {
-      background-color: #eee; }
+      background-color: #222; }
+
+#toolbar {
+  background-color: #ccc; }
 
 /*# sourceMappingURL=main.css.map */
