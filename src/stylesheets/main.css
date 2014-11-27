@@ -95,5 +95,8 @@ html {
 
 #toolbar {
   background-color: #ccc; }
+  #toolbar #reset {
+    float: right;
+    cursor: pointer; }
 
 /*# sourceMappingURL=main.css.map */
