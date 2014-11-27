@@ -7,7 +7,10 @@ var Sudoku = (function($) {
 		,currentCell 		 //Dom element - currently selected cell of the game board
 		,timeInput 			 //Dom element - string representation of the time i.e. 01:13
 		,reset 				 //Dom element - reset button
-		,gameArray; 		 //JS representation of the game - 2-dimensional array 9x9
+		,gameArray  		 //JS representation of the game - 2-dimensional array 9x9
+		,isFull	             //Bollean - whether the game board is full
+		,isValid;			 //Boolean - if check returned any errors
+
 
 	return {
 		// Initiate a new game
@@ -131,14 +134,6 @@ var Sudoku = (function($) {
 		restart.bind('click', resetClick);
 	};
 
-	//Check current selection
-	// function checkGame (choice) {
-	// 	var row = +currentCell.dataset.row,
-	// 		col = +currentCell.dataset.col;
-	// 	var valid = checkRow(row, choice);
-	// 	//valid ? markInvalidRow(row, choice);
-	// };
-
 	/* ****************************
 		Event handlers
 	* ****************************/
@@ -146,12 +141,14 @@ var Sudoku = (function($) {
 		if ( !timer ) {
 			startTime();
 		}
+
 		$(currentCell).removeClass('active');
 		currentCell = event.target;
 		$(currentCell).addClass('active');
-
+		
 		//Ignore if locked cell or click not on the td
 		if ( currentCell.className.indexOf('locked') !== -1 || event.target.nodeName !== 'TD' ) {
+			hideKeypad();
 			return false;
 		}
 
@@ -332,9 +329,14 @@ var Sudoku = (function($) {
 	function checkGame (argument) {
 		//Remove previous validation
 		$('.invalid').removeClass('invalid');
+		isFull = true;
+		isValid = true;
 		checkAndMarkRows();
 		checkAndMarkCols();
 		checkSectors();
+		if ( isFull && isValid ) {
+			congratulate();
+		}
 	};
 
 	//Get a single row and check
@@ -373,8 +375,12 @@ var Sudoku = (function($) {
 		var sortedArray = array.slice().sort(comparator('value'));
 		for (var j = 0; j < 8; j++) {
 			if ( sortedArray[j].value !== -1 && sortedArray[j].value === sortedArray[j+1].value ) {
+				isValid = false;
 				markCellInvalid(sortedArray[j].id);
 				markCellInvalid(sortedArray[j+1].id);
+			}
+			if ( sortedArray[j].value === -1 ) {
+				isFull = false;
 			}
 		}
 	};
